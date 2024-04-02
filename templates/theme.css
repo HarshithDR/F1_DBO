@@ -1,0 +1,85 @@
+/* Add a black background color to the top navigation */
+.topnav {
+    background-color: #e10600;
+    overflow: hidden;
+  }
+  
+  /* Style the links inside the navigation bar */
+  .topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+  
+  /* Change the color of links on hover */
+  .topnav a:hover {
+    background-color: black;
+    color: white;
+  }
+  
+  /* Add a color to the active/current link */
+  .topnav a.active {
+    background-color: #eb9d9b;
+    color: black;
+  }
+  
+  .main {
+    padding-top: 40px;
+    background-color: #f7f4f1;
+    padding: 40px 40px 40px;
+  }
+  
+  .inner-wrap {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+  
+  .resultsarchive-wrapper {
+    background: #fff;
+    margin-bottom: 40px;
+  }
+  
+  .template {
+    font-weight: 400;
+    font-size: 4.2rem;
+    font-family: 'F1BoldRegular', Helvetica, sans-serif;
+  }
+  
+  .resultsarchive-content {
+    padding-bottom: 45px;
+  }
+  
+  .resultsarchive-content .table-wrap {
+    padding: 0 26px;
+  }
+  
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+  }
+  
+  table tr th {
+    padding: 18px 0px 14px;
+    text-align: left;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: gray;
+    font-size: 11px;
+    font-size: 1.1rem;
+  }
+  
+  tbody tr:nth-child(2n+1){background: #f4f4f4;}
+  
+  .resultsarchive-table {
+    margin: 0 0 25px 0;
+  }
+  
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
