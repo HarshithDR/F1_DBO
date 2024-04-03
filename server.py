@@ -45,6 +45,23 @@ try:
         print("The connection to MySQL was successfully established!")
     cursor = connection.cursor()
 
+    def get_columns(table_name):
+        if table_name == "F1Awards":
+            columns = ['AwardID', 'DriverID', 'AwardName', 'AwardDescription', 'AwardImage', 'Date']
+        elif table_name == "Team":
+            columns = ['TeamName', 'Base', 'TeamChief', 'TechnicalChief', 'Chassis', 'PowerUnit', 'FirstTeamEntry', 'WorldChampionships', 'HighestRaceFinish', 'PolePositions', 'FastestLaps']
+        elif table_name == "Driver":
+            columns = ['DriverID', 'Name', 'TeamName', 'Country', 'Podiums', 'Points', 'GrandPrixEntered', 'WorldChampionships', 'HighestRaceFinish', 'DateOfBirth', 'GlobalRank']
+        elif table_name == "Race":
+            columns = ['RaceID', 'Laps', 'Location', 'TrackName']
+        elif table_name == "RaceTrack":
+            columns = ['TrackName', 'FirstGrandPrix', 'NumberOfLaps', 'LapRecord', 'RaceDistance', 'CircuitLength']
+        elif table_name == "RaceSchedule":
+            columns = ['ScheduleID', 'RaceID', 'TrackName', 'StartTime', 'EndTime', 'Date', 'Broadcaster']
+        elif table_name == "RaceDriverDetails":
+            columns = ['RaceID', 'DriverID', 'Car', 'RacePoints', 'TimeRetired', 'Position']
+        return columns
+
     def get_drivers():
         select_query = """
             SELECT * from Driver
@@ -54,7 +71,7 @@ try:
         drivers = []
 
         for driver in drivers_sql:
-            drivers.append({'DriverID': driver[0], 'Name': driver[1], 'TeamName': driver[2], 'Country': driver[3], 'Podiums': driver[4], 'Points': driver[5], 'GrandPrixEntered': driver[6], 'WorldChampionships': driver[7], 'HigestRaceFinish': driver[8], 'DateOfBirth': driver[9], 'GlobalRank': driver[10]})
+            drivers.append({'DriverID': driver[0], 'Name': driver[1], 'TeamName': driver[2], 'Country': driver[3], 'Podiums': driver[4], 'Points': driver[5], 'GrandPrixEntered': driver[6], 'WorldChampionships': driver[7], 'HighestRaceFinish': driver[8], 'DateOfBirth': driver[9], 'GlobalRank': driver[10]})
 
         return drivers
 
@@ -136,27 +153,27 @@ try:
 
         return teams
 
-    def write_data():
-        print("Writing data to drivers.")
-        inser_query = f"INSERT INTO Driver (...) VALUES (%s, %s, %s...)"
-        driver_data = ("pepe", "ferrari", 3)
-        cursor.execute(inser_query, driver_data)
-        connection.commit()
-
-
-    #crud operations
+    #CUD operations
     def create_record(table_name, data):
-        columns = ', '.join(data.keys())
+        columns = get_columns(table_name)
+        columns_str = ', '.join(columns)
         placeholders = ', '.join(['%s'] * len(data))
-        query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-        cursor.execute(query, tuple(data.values()))
+        query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+        cursor.execute(query, tuple(data))
         connection.commit()
 
+    def update_record(table_name, record_id, primary_key, data):
+        columns = get_columns(table_name)
+        set_values = ', '.join([f"{key}=%s" for key in columns])
+        query = f"UPDATE {table_name} SET {set_values} WHERE {primary_key}=%s"
+        cursor.execute(query, tuple(data) + (record_id,))
+        connection.commit()
 
-    def update_record(table_name, record_id, data):
-        set_values = ', '.join([f"{key}=%s" for key in data.keys()])
-        query = f"UPDATE {table_name} SET {set_values} WHERE id=%s"
-        cursor.execute(query, tuple(data.values()) + (record_id,))
+    def update_record_2pks(table_name, record_id_1, record_id_2, primary_key_1, primary_key_2, data):
+        columns = get_columns(table_name)
+        set_values = ', '.join([f"{key}=%s" for key in columns])
+        query = f"UPDATE {table_name} SET {set_values} WHERE {primary_key_1}=%s AND {primary_key_2}=%s"
+        cursor.execute(query, tuple(data) + (record_id_1, record_id_2,))
         connection.commit()
 
     def delete_record(table_name, record_id, primary_key):
@@ -165,8 +182,8 @@ try:
         connection.commit()
 
     def delete_record_2pks(table_name, record_id_1, record_id_2, primary_key_1, primary_key_2):
-        query = f"DELETE FROM {table_name} WHERE {primary_key}=%s AND {primary_key_2}=%s"
-        cursor.execute(query, (record_id_1, record_id_2))
+        query = f"DELETE FROM {table_name} WHERE {primary_key_1}=%s AND {primary_key_2}=%s"
+        cursor.execute(query, (record_id_1, record_id_2,))
         connection.commit()
 
     # HTML server code
@@ -225,7 +242,7 @@ try:
                             elif self.path == "/team":
                                 columns = ['Name', 'Base', 'Chief', 'TechChief', 'Chassis', 'PowerUnit', 'FirstEntry', 'Championships', 'HighestFinish', 'PolePos', 'FastestLaps', 'Actions']
                             elif self.path == "/driver":
-                                columns = ['ID', 'Name', 'Team', 'Country', 'Podiums', 'Points', 'GrandPrixEntered', 'Championships', 'HigestRaceFinish', 'DateOfBirth', 'GlobalRank', 'Actions']
+                                columns = ['ID', 'Name', 'Team', 'Country', 'Podiums', 'Points', 'GrandPrixEntered', 'Championships', 'HighestRaceFinish', 'DateOfBirth', 'GlobalRank', 'Actions']
                             elif self.path == "/race":
                                 columns = ['ID', 'Laps', 'Location', 'TrackName', 'Actions']
                             elif self.path == "/racetrack":
@@ -233,7 +250,7 @@ try:
                             elif self.path == "/raceschedule":
                                 columns = ['ScheduleID', 'RaceID', 'TrackName', 'StartTime', 'EndTime', 'Date', 'Broadcaster', 'Actions']
                             elif self.path == "/racedriverdetails":
-                                columns = ['RaceID', 'DriverID', 'Car', 'RacePoints', 'TimeRetired', 'Position']
+                                columns = ['RaceID', 'DriverID', 'Car', 'RacePoints', 'TimeRetired', 'Position', 'Actions']
                             for column in columns:
                                 self.wfile.write(bytes(f'<th>{column}</th>', "utf-8"))
                             line_written = True
@@ -335,6 +352,53 @@ try:
                 self.wfile.write(bytes(json.dumps({'res': "ok"}), "utf-8"))
             except Exception as e:
                 msg = f"Catched exception from database: {e}."
+                print(msg)
+                self.wfile.write(bytes(json.dumps({'res': "fail", 'msg': msg}), "utf-8"))
+
+        def do_PUT(self):
+            print("Something should be updated :D")
+            self.send_response(200)
+            self.send_header("Content-type", "text/json")
+            self.end_headers()
+            content_length = int(self.headers['Content-Length'])
+            post_data_bytes = self.rfile.read(content_length)
+            post_data_str = post_data_bytes.decode("UTF-8")
+            res = json.loads(post_data_str)
+            print(f"I got this from the update record: {res}")
+            if self.path == "/f1awards":
+                table_name = "F1Awards"
+                primary_key = "AwardID"
+            elif self.path == "/team":
+                table_name = "Team"
+                primary_key = "TeamName"
+            elif self.path == "/driver":
+                table_name = "Driver"
+                primary_key = "DriverID"
+            elif self.path == "/race":
+                table_name = "Race"
+                primary_key = "RaceID"
+            elif self.path == "/racetrack":
+                table_name = "RaceTrack"
+                primary_key = "TrackName"
+            elif self.path == "/raceschedule":
+                table_name = "RaceSchedule"
+                primary_key = "ScheduleID"
+            elif self.path == "/racedriverdetails":
+                table_name = "RaceDriverDetails"
+                primary_key = "RaceID"
+                primary_key_2 = "DriverID"
+            
+            try:
+                if "primary_key_2" in locals():
+                    update_record_2pks(table_name, res['PK'].split(';')[0], res.split(';')[1], primary_key, primary_key_2, res['data'])
+                    print(f"Updated entry from {table_name} with 2 PKs!")
+                else:
+                    update_record(table_name, res['PK'], primary_key, res['data'])
+                    print(f"Updated entry from {table_name} with 1 PK!")
+                self.wfile.write(bytes(json.dumps({'res': "ok"}), "utf-8"))
+            except Exception as e:
+                msg = f"Catched exception from database: {e}."
+                traceback.print_exc()
                 print(msg)
                 self.wfile.write(bytes(json.dumps({'res': "fail", 'msg': msg}), "utf-8"))
 

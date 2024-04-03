@@ -88,25 +88,50 @@
 				document.getElementById(`${pk}-${i}`).innerHTML = `<input type='text' id='${pk}-${i}-input'>`;
 				document.getElementById(`${pk}-${i}-input`).value = value;
 			}
-			document.getElementById('1-modify').outerHTML = `<span onclick="confirmModify('1')" id="1-confirm">✅</span>`
+			document.getElementById(`${pk}-modify`).outerHTML = `<span onclick="confirmModify('${pk}')" id="${pk}-confirm"><img src="/tick.png" alt="Confirm button" width="16" height="16"></span>`
 			console.log(`The number of columns is ${numberOfColumns}`);
 		}
 
 		const confirmModify = async (pk) => {
+			let numberOfColumns = document.getElementsByTagName("th").length - 3; //-2 limiter - actions col
+			let data = [];
+			for (let i = 1; i <= numberOfColumns; i++) {
+				let value = document.getElementById(`${pk}-${i}-input`).value;
+				console.log(`Got value ${value} from id ${pk}-${i}-input.`);
+				data.push(value);
+			}
 			res = await http.put('<!-- PATH -->', {'PK': pk, 'data': data});
 			console.log(res);
 			if (res['res'] == "fail") {
-				alert(`The remove operation failed: ${res['msg']}.`)
+				alert(`The modify operation failed: ${res['msg']}.`)
 			} else {
 				location.reload();
 			}
 		}
 
-		const create = async (data) => {
-			res = await http.put('<!-- PATH -->', {'data': data});
+		const create = () => {
+			let numberOfColumns = document.getElementsByTagName("th").length - 3; //-2 limiter - actions col
+			let new_row = `<tr><td class="limiter"></td>`;
+			for (let i = 1; i <= numberOfColumns; i++) {
+				new_row +=  `<td><input type='text' id='${i}-create-input'></td>`;
+			}
+			new_row += `<td></td><td class="limiter"></td></tr>`;
+			document.getElementsByTagName('tbody')[0].innerHTML += new_row;
+			document.getElementById('createButton').outerHTML = `<button style="color: white; background-color: green;" onClick="confirmCreate()" id="confirmButton">Confirm</button>`;
+		}
+
+		const confirmCreate = async () => {
+			let numberOfColumns = document.getElementsByTagName("th").length - 3; //-2 limiter - actions col
+			let data = [];
+			for (let i = 1; i <= numberOfColumns; i++) {
+				let value = document.getElementById(`${i}-create-input`).value;
+				console.log(`Got value ${value} from id ${i}-create-input.`);
+				data.push(value);
+			}
+			res = await http.post('<!-- PATH -->', {'data': data});
 			console.log(res);
 			if (res['res'] == "fail") {
-				alert(`The remove operation failed: ${res['msg']}.`)
+				alert(`The create operation failed: ${res['msg']}.`)
 			} else {
 				location.reload();
 			}
@@ -142,6 +167,9 @@
 							<!-- ROWS -->
 						</tbody>
 					</table>
+					<div id="create" style="text-align: center">
+						<button style="color: white; background-color: red;" onClick="create()" id="createButton">Create</button>
+					</div>
 				</div>
 			</div>
 		</div>
