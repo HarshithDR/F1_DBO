@@ -49,7 +49,7 @@ try:
         if table_name == "F1Awards":
             columns = ['AwardID', 'DriverID', 'AwardName', 'AwardDescription', 'AwardImage', 'Date']
         elif table_name == "Team":
-            columns = ['TeamName', 'Base', 'TeamChief', 'TechnicalChief', 'Chassis', 'PowerUnit', 'FirstTeamEntry', 'WorldChampionships', 'HighestRaceFinish', 'PolePositions', 'FastestLaps']
+            columns = ['TeamName', 'Base', 'TeamChief', 'TechnicalChief', 'Chassis', 'PowerUnit', 'FirstTeamEntry', 'WorldChampionships', 'HighestRaceFinish', 'PolePosition', 'FastestLaps']
         elif table_name == "Driver":
             columns = ['DriverID', 'Name', 'TeamName', 'Country', 'Podiums', 'Points', 'GrandPrixEntered', 'WorldChampionships', 'HighestRaceFinish', 'DateOfBirth', 'GlobalRank']
         elif table_name == "Race":
@@ -395,6 +395,49 @@ try:
                 else:
                     update_record(table_name, res['PK'], primary_key, res['data'])
                     print(f"Updated entry from {table_name} with 1 PK!")
+                self.wfile.write(bytes(json.dumps({'res': "ok"}), "utf-8"))
+            except Exception as e:
+                msg = f"Catched exception from database: {e}."
+                traceback.print_exc()
+                print(msg)
+                self.wfile.write(bytes(json.dumps({'res': "fail", 'msg': msg}), "utf-8"))
+
+        def do_POST(self):
+            print("Something should be created :))")
+            self.send_response(200)
+            self.send_header("Content-type", "text/json")
+            self.end_headers()
+            content_length = int(self.headers['Content-Length'])
+            post_data_bytes = self.rfile.read(content_length)
+            post_data_str = post_data_bytes.decode("UTF-8")
+            res = json.loads(post_data_str)
+            print(f"I got this from the create record: {res}")
+            if self.path == "/f1awards":
+                table_name = "F1Awards"
+                primary_key = "AwardID"
+            elif self.path == "/team":
+                table_name = "Team"
+                primary_key = "TeamName"
+            elif self.path == "/driver":
+                table_name = "Driver"
+                primary_key = "DriverID"
+            elif self.path == "/race":
+                table_name = "Race"
+                primary_key = "RaceID"
+            elif self.path == "/racetrack":
+                table_name = "RaceTrack"
+                primary_key = "TrackName"
+            elif self.path == "/raceschedule":
+                table_name = "RaceSchedule"
+                primary_key = "ScheduleID"
+            elif self.path == "/racedriverdetails":
+                table_name = "RaceDriverDetails"
+                primary_key = "RaceID"
+                primary_key_2 = "DriverID"
+            
+            try:
+                create_record(table_name, res['data'])
+                print(f"Created a new row on {table_name}K!")
                 self.wfile.write(bytes(json.dumps({'res': "ok"}), "utf-8"))
             except Exception as e:
                 msg = f"Catched exception from database: {e}."
