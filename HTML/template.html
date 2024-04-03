@@ -1,0 +1,149 @@
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=3.0"> 
+
+	<title>Formula 1 - CS 425 - Group 10</title>
+	<meta name="description" content="The server for our foruth deliverable of Database Organization (CS 425) - Illinois Institute of Technology"/>
+	<meta property="og:locale" content="en_US" />
+	<link rel="stylesheet" href="/theme.css">
+	<link rel="shortcut icon" type="image/x-icon" href="https://www.formula1.com/etc/designs/fom-website/favicon.ico"/>
+	<link rel="icon" sizes="192x192" href="https://www.formula1.com/etc/designs/fom-website/icon192x192.png"/>
+	<link rel="icon" sizes="128x128" href="https://www.formula1.com/etc/designs/fom-website/icon128x128.png"/>
+	<link rel="apple-touch-icon" href="https://www.formula1.com/etc/designs/fom-website/icon128x128.png"/>
+	<link rel="icon" sizes="32x32" href="https://www.formula1.com/etc/designs/fom-website/favicon-32x32.png"/>
+	<link rel="icon" sizes="16x16" href="https://www.formula1.com/etc/designs/fom-website/favicon-16x16.png"/>
+	<link rel="icon" sizes="32x32" href="https://www.formula1.com/etc/designs/fom-website/favicon-32x32.png"/>
+	<link rel="icon" sizes="16x16" href="https://www.formula1.com/etc/designs/fom-website/favicon-16x16.png"/>
+	<link rel="preload" as="font" href="https://www.formula1.com/etc/designs/fom-website/fonts/F1Regular/Formula1-Regular.woff2" type="font/woff2" crossorigin="anonymous"/>
+	<link rel="preload" as="font" href="https://www.formula1.com/etc/designs/fom-website/fonts/F1RegularItalic/Formula1-Italic.woff2" type="font/woff2" crossorigin="anonymous"/>
+	<link rel="preload" as="font" href="https://www.formula1.com/etc/designs/fom-website/fonts/F1Bold/Formula1-Bold.woff2" type="font/woff2" crossorigin="anonymous"/>
+	<link rel="preload" as="font" href="https://www.formula1.com/etc/designs/fom-website/fonts/F1Black/Formula1-Black.woff2" type="font/woff2" crossorigin="anonymous"/>
+	<link rel="preload" as="font" href="https://www.formula1.com/etc/designs/fom-website/fonts/F1Wide/Formula1-Wide.woff2" type="font/woff2" crossorigin="anonymous"/>
+	<link rel="preload" as="font" href="https://www.formula1.com/etc/designs/fom-website/fonts/F1YEAR/F1YEARRegular.woff2" type="font/woff2" crossorigin="anonymous"/>
+	<script>
+		class HTTPFunctions {
+			async put(path, data) { 
+				const response = await fetch(path, { 
+					method: 'PUT', 
+					headers: { 
+					'Content-type': 'application/json'
+					}, 
+					body: JSON.stringify(data) 
+				}); 
+
+				let resData = await response;
+				resData = await resData.json();
+
+				return resData; 
+			}
+
+			async post(path, data) { 
+				const response = await fetch(path, { 
+					method: 'POST', 
+					headers: { 
+					'Content-type': 'application/json'
+					}, 
+					body: JSON.stringify(data) 
+				}); 
+
+				let resData = await response;
+				resData = await resData.json();
+
+				return resData; 
+			}
+
+			async delete(path, data) { 
+				const response = await fetch(path, { 
+					method: 'DELETE', 
+					headers: { 
+					'Content-type': 'application/json'
+					}, 
+					body: JSON.stringify(data) 
+				}); 
+
+				let resData = await response;
+				resData = await resData.json();
+
+				return resData; 
+			}
+		}
+
+		const http = new HTTPFunctions; 
+
+		const remove = async (pk) => {
+			res = await http.delete('<!-- PATH -->', {'PK': pk});
+			console.log(res);
+			if (res['res'] == "fail") {
+				alert(`The remove operation failed: ${res['msg']}.`);
+			} else {
+				location.reload();
+			}
+		}
+
+		const modify = async (pk) => {
+			let numberOfColumns = document.getElementsByTagName("th").length - 3; //-2 limiter - actions col
+			for (let i = 1; i <= numberOfColumns; i++) {
+				let value = document.getElementById(`${pk}-${i}`).innerHTML;
+				console.log(`Got value ${value} from id ${pk}-${i}.`);
+				document.getElementById(`${pk}-${i}`).innerHTML = `<input type='text' id='${pk}-${i}-input'>`;
+				document.getElementById(`${pk}-${i}-input`).value = value;
+			}
+			document.getElementById('1-modify').outerHTML = `<span onclick="confirmModify('1')" id="1-confirm">✅</span>`
+			console.log(`The number of columns is ${numberOfColumns}`);
+		}
+
+		const confirmModify = async (pk) => {
+			res = await http.put('<!-- PATH -->', {'PK': pk, 'data': data});
+			console.log(res);
+			if (res['res'] == "fail") {
+				alert(`The remove operation failed: ${res['msg']}.`)
+			} else {
+				location.reload();
+			}
+		}
+
+		const create = async (data) => {
+			res = await http.put('<!-- PATH -->', {'data': data});
+			console.log(res);
+			if (res['res'] == "fail") {
+				alert(`The remove operation failed: ${res['msg']}.`)
+			} else {
+				location.reload();
+			}
+		}
+	</script>
+</head>
+<body>
+	<div class="topnav">
+		<a href="/">Home</a>
+		<a href="/f1awards">F1Awards</a>
+		<a href="/team">Team</a>
+		<a href="/driver">Driver</a>
+		<a href="/race">Race</a>
+		<a href="/racetrack">RaceTrack</a>
+		<a href="/raceschedule">RaceSchedule</a>
+		<a href="/racedriverdetails">RaceDriverDetails</a>
+	</div>
+	<main class="main">
+		<div class="inner-wrap resultsarchive-wrapper">
+			<h1 class="template"><!-- TITLE --></h1>
+			<div class="resultsarchive-content">
+				<div class="table-wrap">
+					<table class="resultsarchive-table">
+						<thead>
+							<tr>
+								<th class="limiter"></th>
+								<!-- COLUMN_NAMES -->
+								<th class="limiter"></th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<!-- ROWS -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</main>
+</body>
