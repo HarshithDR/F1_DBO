@@ -18,6 +18,9 @@ DEFAULT_PORT = 8080
 HOSTNAME = "localhost"
 PATH = "HTML"
 
+# HTML customization
+MAX_SUBQUERIES_PER_DROPDOWN = 5
+
 if not os.path.isdir(PATH):
     print("Error! The HTML dir with the web templates has not been found.")
     print("Please make sure that you are running this script from the same folder as where the HTML folder is located.")
@@ -45,6 +48,10 @@ try:
         print("The connection to MySQL was successfully established!")
     cursor = connection.cursor()
 
+    print("Loading advanced queries from advancedQueries.json file...")
+    advQueries = json.load(open("./advancedQueries.json"))
+    print(f"{len(advQueries)} advanced queries were loaded successfully!")
+
     def get_columns(table_name):
         if table_name == "F1Awards":
             columns = ['AwardID', 'DriverID', 'AwardName', 'AwardDescription', 'AwardImage', 'Date']
@@ -62,6 +69,7 @@ try:
             columns = ['RaceID', 'DriverID', 'Car', 'RacePoints', 'TimeRetired', 'Position']
         return columns
 
+    # MySQL Read queries
     def get_drivers():
         select_query = """
             SELECT * from Driver
@@ -153,6 +161,23 @@ try:
 
         return teams
 
+    def get_advanced_query(select_query, columns, renamedColumns):
+        cursor.execute(select_query)
+        result_sql = cursor.fetchall()
+        result = []
+
+        for res in result_sql:
+            res_obj = {}
+            i = 0
+            for column in columns:
+                col_name = renamedColumns[column] if column in renamedColumns.keys() else column
+                res_obj[col_name] = res[i]
+                i += 1
+
+            result.append(res_obj)
+
+        return result
+
     #CUD operations
     def create_record(table_name, data):
         columns = get_columns(table_name)
@@ -192,6 +217,7 @@ try:
             self.send_response(200)
 
             template_mode = False
+            advQuery = None
             asset = False
             try:
                 if self.path == '/':
@@ -202,9 +228,18 @@ try:
                     print(f"DEBUG: Sending template.html with path {self.path}")
                     file = open(f'{PATH}/template.html', 'r')
                 else:
-                    print(f"DEBUG: Sending {PATH}{self.path} with path {self.path}")
-                    file = open(f'{PATH}{self.path}', 'rb')
-                    asset = True
+                    for query in advQueries:
+                        if self.path == query['link']:
+                            advQuery = query
+                            break
+                    if advQuery is None:
+                        print(f"DEBUG: Sending {PATH}{self.path} with path {self.path}")
+                        file = open(f'{PATH}{self.path}', 'rb')
+                        asset = True
+                    else:
+                        template_mode = True
+                        print(f"DEBUG: Sending template.html with path {self.path}")
+                        file = open(f'{PATH}/template.html', 'r')
             except:
                 template_mode = True
                 print(f"DEBUG: Sending error page with path {self.path}")
@@ -234,7 +269,7 @@ try:
                             title = line.split('">')[1].split('</a>')[0]
                             append_line = line.replace(f'<a href="{self.path}">', f'<a class="active" href="{self.path}">')
                         elif "<!-- TITLE -->" in line:
-                            title = title if title[-1] == 's' else f"{title}s"
+                            title = advQuery['name'] if advQuery is not None else title if title[-1] == 's' else f"{title}s"
                             append_line = f'{line.replace("<!-- TITLE -->", title)}'
                         elif "<!-- COLUMN_NAMES -->" in line:
                             if self.path == "/f1awards":
@@ -251,6 +286,11 @@ try:
                                 columns = ['ScheduleID', 'RaceID', 'TrackName', 'StartTime', 'EndTime', 'Date', 'Broadcaster', 'Actions']
                             elif self.path == "/racedriverdetails":
                                 columns = ['RaceID', 'DriverID', 'Car', 'RacePoints', 'TimeRetired', 'Position', 'Actions']
+                            elif advQuery is not None:
+                                columns = advQuery['columns']
+                                # Rename columns if necessary
+                                for i in range(len(columns)):
+                                    columns[i] = advQuery['renamedColumns'][columns[i]] if columns[i] in advQuery['renamedColumns'].keys() else columns[i]
                             for column in columns:
                                 self.wfile.write(bytes(f'<th>{column}</th>', "utf-8"))
                             line_written = True
@@ -284,16 +324,22 @@ try:
                                 table_name = "RaceDriverDetails"
                                 primary_key = "RaceID"
                                 primary_key_2 = "DriverID"
+                            elif advQuery is not None:
+                                rows = get_advanced_query(advQuery['SQLquery'], advQuery['columns'], advQuery['renamedColumns'])
                             for row in rows:
                                 self.wfile.write(bytes('<tr><td class="limiter"></td>', "utf-8"))
 
                                 i = 1
                                 for column in row.keys():
-                                    self.wfile.write(bytes(f"""<td id="{row[primary_key]}{f';{row[primary_key_2]}' if 'primary_key_2' in locals() else ''}-{i}">{row[column]}</td>""", "utf-8"))
+                                    if advQuery is None:
+                                        self.wfile.write(bytes(f"""<td id="{row[primary_key]}{f';{row[primary_key_2]}' if 'primary_key_2' in locals() else ''}-{i}">{row[column]}</td>""", "utf-8"))
+                                    else:
+                                        self.wfile.write(bytes(f"""<td id="{i}">{row[column]}</td>""", "utf-8"))
                                     i += 1
 
-                                # Add action buttons
-                                self.wfile.write(bytes(f"""<td><span onClick="modify('{row[primary_key]}{f';{row[primary_key_2]}' if "primary_key_2" in locals() else ''}')" id="{row[primary_key]}{f';{row[primary_key_2]}' if 'primary_key_2' in locals() else ''}-modify">✏️</span><span onClick="remove('{row[primary_key]}{f';{row[primary_key_2]}' if "primary_key_2" in locals() else ''}')" id="{row[primary_key]}{f';{row[primary_key_2]}' if 'primary_key_2' in locals() else ''}-remove">❌</span></td>""", "utf-8"))
+                                # Add action buttons only if we arre loading an original table
+                                if advQuery is None:
+                                    self.wfile.write(bytes(f"""<td><span onClick="modify('{row[primary_key]}{f';{row[primary_key_2]}' if "primary_key_2" in locals() else ''}')" id="{row[primary_key]}{f';{row[primary_key_2]}' if 'primary_key_2' in locals() else ''}-modify">✏️</span><span onClick="remove('{row[primary_key]}{f';{row[primary_key_2]}' if "primary_key_2" in locals() else ''}')" id="{row[primary_key]}{f';{row[primary_key_2]}' if 'primary_key_2' in locals() else ''}-remove">❌</span></td>""", "utf-8"))
 
                                 self.wfile.write(bytes('<td class="limiter"></td></tr>', "utf-8"))
 
@@ -302,10 +348,44 @@ try:
                             append_line = f'{line.replace("<!-- ERROR PATH -->", self.path)}'
                         elif "<!-- PATH -->" in line:
                             append_line = f'{line.replace("<!-- PATH -->", self.path)}'
+                        elif "<!-- CREATE_BUTTON -->" in line:
+                            append_line = '<div id="create" style="text-align: center"><button class="red_button" onClick="create()" id="createButton">Create</button></div>' if advQuery is None else ''
+                        elif "<!-- DESCRIPTION -->" in line:
+                            append_line = '' if advQuery is None else f'<h2>Description:</h2><p>{advQuery["desc"]}</p>'
+                        elif "<!-- SQL_QUERY -->" in line:
+                            append_line = '' if advQuery is None else f'<h2>SQL query:</h2><div class="code_block"><code></code>{advQuery["SQLquery"]}</div>'
                         else:
                             append_line = f"{line}"
                     else:
                         append_line = f"{line}"
+                    if "<!-- ADVANCED_QUERIES -->" in line:
+                        if len(advQueries) > 0:
+                            i = 0
+                            current_dropdown = 1
+
+                            for query in advQueries:
+                                if i % MAX_SUBQUERIES_PER_DROPDOWN == 0:
+                                    if i != 0:
+                                        # Close the older dropdown
+                                        self.wfile.write(bytes('</div></div>', "utf-8"))
+
+                                    # Create new dropdown
+                                    self.wfile.write(bytes('<div class="dropdown">', "utf-8"))
+                                    self.wfile.write(bytes('<button class="dropbtn">', "utf-8"))
+                                    self.wfile.write(bytes(f'Advanced queries {current_dropdown}', "utf-8"))
+                                    self.wfile.write(bytes(f'<i class="fa fa-caret-down"></i>', "utf-8"))
+                                    self.wfile.write(bytes('</button>', "utf-8"))
+                                    self.wfile.write(bytes('<div class="dropdown-content">', "utf-8"))
+                                    current_dropdown += 1
+                                
+                                # Write a new entry
+                                self.wfile.write(bytes(f"""<a href="{query["link"]}"{' class="active"' if self.path == query["link"] else ""}>{query["name"]}</a>""", "utf-8"))
+
+                                i += 1
+                            # Close last dropdown
+                            self.wfile.write(bytes('</div></div>', "utf-8"))
+                        else:
+                            append_line = ''
                     if not line_written:
                         self.wfile.write(bytes(append_line, "utf-8"))
         
@@ -344,7 +424,7 @@ try:
             
             try:
                 if "primary_key_2" in locals():
-                    delete_record_2pks(table_name, res['PK'].split(';')[0], res.split(';')[1], primary_key, primary_key_2)
+                    delete_record_2pks(table_name, res['PK'].split(';')[0], res['PK'].split(';')[1], primary_key, primary_key_2)
                     print(f"Removed entry from {table_name} with 2 PKs!")
                 else:
                     delete_record(table_name, res['PK'], primary_key)
@@ -390,7 +470,7 @@ try:
             
             try:
                 if "primary_key_2" in locals():
-                    update_record_2pks(table_name, res['PK'].split(';')[0], res.split(';')[1], primary_key, primary_key_2, res['data'])
+                    update_record_2pks(table_name, res['PK'].split(';')[0], res['PK'].split(';')[1], primary_key, primary_key_2, res['data'])
                     print(f"Updated entry from {table_name} with 2 PKs!")
                 else:
                     update_record(table_name, res['PK'], primary_key, res['data'])

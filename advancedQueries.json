@@ -1,0 +1,146 @@
+[
+    {
+        "link": "/drivers_rank_championship",
+        "name": "Drivers Championships (RANK)",
+        "desc": "The driver leading the championship is determined by using RANK() to rank the drivers according to their points in descending order.",
+        "SQLquery": "SELECT Name, Country, Points, RANK() OVER (ORDER BY Points DESC) AS ChampionshipRank FROM Driver;",
+        "columns": ["Name", "Country", "Points", "ChampionshipRank"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/drivers_quartiles",
+        "name": "Drivers Quartiles (NTILE(4))",
+        "desc": "Divide drivers into quartiles based on their global rank to see how they stand in comparison to others.",
+        "SQLquery": "SELECT Name, GlobalRank, NTILE(4) OVER (ORDER BY GlobalRank) AS RankQuartile FROM Driver;",
+        "columns": ["Name", "GlobalRank", "RankQuartile"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/teams_podiums",
+        "name": "Teams with podiums",
+        "desc": "Group the drivers by the team to calculate the total number of podiums for each team.",
+        "SQLquery": "SELECT TeamName, SUM(Podiums) AS TotalPodiums FROM Driver GROUP BY TeamName;",
+        "columns": ["TeamName", "TotalPodiums"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/team_country_rollup",
+        "name": "Team and country (ROLLUP)",
+        "desc": "ROLLUP to get the subtotals and grand total of points by team and country.",
+        "SQLquery": "SELECT TeamName, Country, SUM(Points) AS TotalPoints FROM Driver GROUP BY TeamName, Country WITH ROLLUP;",
+        "columns": ["TeamName", "Country", "TotalPoints"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/drivers_suzuka",
+        "name": "Top Drivers Suzuka",
+        "desc": "The known drivers leading the race which took place in the \"Suzuka International Racing Course\" track are determined using RANK() to rank the drivers according to their position in descending order.",
+        "SQLquery": "SELECT Name, Country, Position, Car, RANK() OVER (ORDER BY Position DESC) AS PositionRank FROM Driver INNER JOIN RaceDriverDetails ON Driver.DriverID = RaceDriverDetails.DriverID INNER JOIN Race ON RaceDriverDetails.RaceID = Race.RaceID WHERE Race.TrackName = 'Suzuka International Racing Course';",
+        "columns": ["Name", "Country", "Position", "Car", "PositionRank"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/awards_country_rank",
+        "name": "Awards per country (PERCENT_RANK)",
+        "desc": "The number of awards per country with their percent rank calculated with PERCENT_RANK () according to the number of awards in ascending order.",
+        "SQLquery": "SELECT Driver.Country, COUNT(AwardID) AS Awards, PERCENT_RANK() OVER (ORDER BY COUNT(AwardID) ASC) AS PercentRank FROM F1Awards INNER JOIN Driver ON Driver.DriverID = F1Awards.DriverID GROUP BY Driver.Country;",
+        "columns": ["Country", "Awards", "PercentRank"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/drivers_age",
+        "name": "Drivers age",
+        "desc": "Get the name of the drivers of each team with its date of birth and age, along with its team name, ordered by ascending team name and descending date of birth.",
+        "SQLquery": "SELECT Driver.Name, Driver.DateOfBirth, TIMESTAMPDIFF(YEAR, Driver.DateOfBirth, CURDATE()) AS Age, Team.TeamName FROM Driver INNER JOIN Team ON Driver.TeamName = Team.TeamName ORDER BY Team.TeamName ASC, Driver.DateOfBirth DESC;",
+        "columns": ["Name", "DateOfBirth", "Age", "TeamName"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/race_cume_dist",
+        "name": "Race laps (CUME_DIST)",
+        "desc": "Cumulative distribution (Cume_dist) of the races by number of laps.",
+        "SQLquery": "SELECT RaceID, Location, TrackName, Laps, CUME_DIST() OVER (ORDER BY laps ASC) cume_dist_val FROM Race;",
+        "columns": ["RaceID", "Location", "TrackName", "Laps", "cume_dist_val"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/drivers_multiple_awards",
+        "name": "Drivers with multiple awards",
+        "desc": "Drivers who have won multiple awards.",
+        "SQLquery": "SELECT d.DriverID, d.Name, COUNT(*) AS AwardsWon FROM F1Awards a INNER JOIN Driver d ON a.DriverID = d.DriverID GROUP BY d.DriverID, d.Name HAVING COUNT(*) > 1;",
+        "columns": ["DriverID", "Name", "AwardsWon"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/average_points_race_driver",
+        "name": "Drivers average points",
+        "desc": "Average points per race for each driver.",
+        "SQLquery": "SELECT d.DriverID, d.Name, AVG(rd.RacePoints) AS AveragePointsPerRace FROM RaceDriverDetails rd INNER JOIN Driver d ON rd.DriverID = d.DriverID GROUP BY rd.DriverID, d.Name;",
+        "columns": ["DriverID", "Name", "AveragePointsPerRace"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/drivers_awards",
+        "name": "Awards per driver",
+        "desc": "Get the total number of awards per DriverID.",
+        "SQLquery": "SELECT DriverID, COUNT(*) AS TotalAwards FROM F1Awards GROUP BY DriverID;",
+        "columns": ["DriverID", "TotalAwards"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/teams_highlights",
+        "name": "Team Summary",
+        "desc": "Summarize the total number of World Championships, Pole Positions, and Fastest Laps for each team.",
+        "SQLquery": "SELECT TeamName, SUM(WorldChampionships) AS TotalWorldChampionships, SUM(PolePosition) AS TotalPolePosition, SUM(FastestLaps) AS TotalFastestLaps FROM Team GROUP BY TeamName;",
+        "columns": ["TeamName", "TotalWorldChampionships", "TotalPolePosition", "TotalFastestLaps"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/drivers_200plus_podiums",
+        "name": "Drivers 200+ podiums",
+        "desc": "Drivers who achieved podium finishes more than 200 times.",
+        "SQLquery": "SELECT * FROM Driver WHERE Podiums > 200;",
+        "columns": ["DriverID", "Name", "TeamName", "Country", "Podiums", "Points", "GrandPrixEntered", "WorldChampionships", "HighestRaceFinish", "DateOfBirth", "GlobalRank"],
+        "renamedColumns": {"DriverID": "ID", "TeamName": "Team", "WorldChampionships": "Championships"}
+    },
+    {
+        "link": "/teams_championships",
+        "name": "Teams with multiple championships",
+        "desc": " Teams that have won the world championship more than once and their corresponding team chief.",
+        "SQLquery": "SELECT t.TeamName, t.WorldChampionships, t.TeamChief FROM Team t WHERE t.WorldChampionships > 1;",
+        "columns": ["TeamName", "WorldChampionships", "TeamChief"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/drivers_podium_5kmplus",
+        "name": "Drivers with podium in 5+ km",
+        "desc": "Identify the drivers who achieved podium finishes in races held on circuits longer than 5 kilometers.",
+        "SQLquery": "SELECT DISTINCT d.* FROM Driver d INNER JOIN RaceDriverDetails rd ON d.DriverID = rd.DriverID INNER JOIN Race r ON rd.RaceID = r.RaceID INNER JOIN RaceTrack rt ON r.TrackName = rt.TrackName WHERE rt.CircuitLength > 5 AND rd.Position IN (1, 2, 3);",
+        "columns": ["DriverID", "Name", "TeamName", "Country", "Podiums", "Points", "GrandPrixEntered", "WorldChampionships", "HighestRaceFinish", "DateOfBirth", "GlobalRank"],
+        "renamedColumns": {"DriverID": "ID", "TeamName": "Team", "WorldChampionships": "Championships"}
+    },
+    {
+        "link": "/teams_races",
+        "name": "Races per team",
+        "desc": "Count the number of races each team has entered.",
+        "SQLquery": "SELECT t.TeamName, COUNT(*) AS RacesEntered FROM RaceDriverDetails rdd JOIN Driver d ON rdd.DriverID = d.DriverID JOIN Team t ON d.TeamName = t.TeamName GROUP BY t.TeamName;",
+        "columns": ["TeamName", "RacesEntered"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/teams_dense_rank",
+        "name": "Teams by FastestLaps (DENSE_RANK)",
+        "desc": "Get the dense rank of the teams by its number of fastest lap.",
+        "SQLquery": "SELECT TeamName, Base, FastestLaps, DENSE_RANK() OVER (ORDER BY FastestLaps DESC) AS FastestLapsDenseRank FROM Team;",
+        "columns": ["TeamName", "Base", "FastestLaps", "FastestLapsDenseRank"],
+        "renamedColumns": {}
+    },
+    {
+        "link": "/drivers_rank_avg_points",
+        "name": "Drivers by average points (RANK)",
+        "desc": "To rank drivers based on their average points per race over their career.",
+        "SQLquery": "SELECT DriverID, Name, Points, RANK() OVER (ORDER BY AVG(Points) DESC) AS AveragePointsRank FROM Driver GROUP BY DriverID, Name, Points;",
+        "columns": ["DriverID", "Name", "Points", "AveragePointsRank"],
+        "renamedColumns": {}
+    }
+  ]

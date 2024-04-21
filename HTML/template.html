@@ -117,7 +117,7 @@
 			}
 			new_row += `<td></td><td class="limiter"></td></tr>`;
 			document.getElementsByTagName('tbody')[0].innerHTML += new_row;
-			document.getElementById('createButton').outerHTML = `<button style="color: white; background-color: green;" onClick="confirmCreate()" id="confirmButton">Confirm</button>`;
+			document.getElementById('createButton').outerHTML = `<button class="green_button" onClick="confirmCreate()" id="confirmButton">Confirm</button>`;
 		}
 
 		const confirmCreate = async () => {
@@ -148,10 +148,13 @@
 		<a href="/racetrack">RaceTrack</a>
 		<a href="/raceschedule">RaceSchedule</a>
 		<a href="/racedriverdetails">RaceDriverDetails</a>
+		<!-- ADVANCED_QUERIES -->
 	</div>
 	<main class="main">
 		<div class="inner-wrap resultsarchive-wrapper">
 			<h1 class="template"><!-- TITLE --></h1>
+			<!-- DESCRIPTION -->
+			<!-- SQL_QUERY -->
 			<div class="resultsarchive-content">
 				<div class="table-wrap">
 					<table class="resultsarchive-table">
@@ -167,9 +170,7 @@
 							<!-- ROWS -->
 						</tbody>
 					</table>
-					<div id="create" style="text-align: center">
-						<button style="color: white; background-color: red;" onClick="create()" id="createButton">Create</button>
-					</div>
+					<!-- CREATE_BUTTON -->
 				</div>
 			</div>
 		</div>
