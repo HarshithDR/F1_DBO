@@ -39,6 +39,11 @@ This project focuses on showing and handling database for Formula 1. The databas
 
 - Go to the link http://localhost:8080
 
+## Demo video
+
+https://raw.githubusercontent.com/HarshithDR/F1_DBO/master/DemoVideo.mp4
+
+
 ## Contributors
 
 1. Raviraj Mahadeo Khopade
