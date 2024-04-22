@@ -354,6 +354,22 @@ try:
                             append_line = '' if advQuery is None else f'<h2>Description:</h2><p>{advQuery["desc"]}</p>'
                         elif "<!-- SQL_QUERY -->" in line:
                             append_line = '' if advQuery is None else f'<h2>SQL query:</h2><div class="code_block"><code></code>{advQuery["SQLquery"]}</div>'
+                        elif "<!-- PRIMARY_KEY_NUMBER -->" in line:
+                            if self.path == "/f1awards":
+                                primary_key_number = 1
+                            elif self.path == "/team":
+                                primary_key_number = 1
+                            elif self.path == "/driver":
+                                primary_key_number = 1
+                            elif self.path == "/race":
+                                primary_key_number = 1
+                            elif self.path == "/racetrack":
+                                primary_key_number = 1
+                            elif self.path == "/raceschedule":
+                                primary_key_number = 1
+                            elif self.path == "/racedriverdetails":
+                                primary_key_number = "1,2" # Composed
+                            append_line = f'const primaryKeyNumber = "{primary_key_number}";' if advQuery is None else ''
                         else:
                             append_line = f"{line}"
                     else:

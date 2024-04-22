@@ -1,16 +1,16 @@
 ScheduleID,RaceID,TrackName,StartTime,EndTime,Date,Broadcaster
-1,3,ligula sit amet eleifend,18:18,17:01,7/13/2023,odio
-2,4,non sodales sed tincidunt,19:11,17:15,2/26/2023,vestibulum velit
-3,15,volutpat dui maecenas tristique est et,16:40,14:54,8/7/2023,purus
-4,24,volutpat quam pede lobortis ligula sit,10:11,17:01,6/14/2023,odio
-5,11,cras non velit nec nisi,9:00,15:31,10/15/2023,congue elementum
-6,8,placerat praesent blandit nam,19:52,14:58,2/18/2023,nullam
-7,7,tincidunt eget tempus,13:08,18:53,4/20/2023,vestibulum
-8,1,platea dictumst morbi vestibulum velit,20:57,16:10,10/18/2023,mauris
-9,14,vitae ipsum aliquam non mauris,20:36,18:07,3/29/2023,in
-10,19,mus vivamus vestibulum,16:41,13:59,4/2/2023,in
-11,12,tempor convallis nulla neque,11:56,17:22,10/8/2023,dapibus
-12,5,at nulla suspendisse potenti cras in,22:01,20:37,4/29/2023,in sapien
-13,9,urna ut tellus nulla,18:28,22:00,5/13/2023,vestibulum quam
-14,10,sit amet sem fusce,16:26,18:17,1/17/2023,non
-15,30,aliquet at feugiat non pretium,9:10,20:24,9/20/2023,donec
+1,3,ligula sit amet eleifend,18:18,17:01,2023-07-13,odio
+2,4,non sodales sed tincidunt,19:11,17:15,2023-02-26,vestibulum velit
+3,15,volutpat dui maecenas tristique est et,16:40,14:54,2023-08-07,purus
+4,24,volutpat quam pede lobortis ligula sit,10:11,17:01,2023-06-14,odio
+5,11,cras non velit nec nisi,9:00,15:31,2023-10-15,congue elementum
+6,8,placerat praesent blandit nam,19:52,14:58,2023-02-18,nullam
+7,7,tincidunt eget tempus,13:08,18:53,2023-04-20,vestibulum
+8,1,platea dictumst morbi vestibulum velit,20:57,16:10,2023-10-18,mauris
+9,14,vitae ipsum aliquam non mauris,20:36,18:07,2023-03-29,in
+10,19,mus vivamus vestibulum,16:41,13:59,2023-04-02,in
+11,12,tempor convallis nulla neque,11:56,17:22,2023-10-08,dapibus
+12,5,at nulla suspendisse potenti cras in,22:01,20:37,2023-04-29,in sapien
+13,9,urna ut tellus nulla,18:28,22:00,2023-05-13,vestibulum quam
+14,10,sit amet sem fusce,16:26,18:17,2023-01-17,non
+15,30,aliquet at feugiat non pretium,9:10,20:24,2023-09-20,donec

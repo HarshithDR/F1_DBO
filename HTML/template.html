@@ -68,7 +68,9 @@
 			}
 		}
 
-		const http = new HTTPFunctions; 
+		const http = new HTTPFunctions;
+
+		// <!-- PRIMARY_KEY_NUMBER --> const primaryKeyNumber = "X";
 
 		const remove = async (pk) => {
 			res = await http.delete('<!-- PATH -->', {'PK': pk});
@@ -83,10 +85,20 @@
 		const modify = async (pk) => {
 			let numberOfColumns = document.getElementsByTagName("th").length - 3; //-2 limiter - actions col
 			for (let i = 1; i <= numberOfColumns; i++) {
-				let value = document.getElementById(`${pk}-${i}`).innerHTML;
-				console.log(`Got value ${value} from id ${pk}-${i}.`);
-				document.getElementById(`${pk}-${i}`).innerHTML = `<input type='text' id='${pk}-${i}-input'>`;
-				document.getElementById(`${pk}-${i}-input`).value = value;
+				let notPK = true;
+				for (let pk_col of primaryKeyNumber.split(',')) {
+					if (i == parseInt(pk_col)) {
+						notPK = false;
+					}
+				}
+
+				// Avoid updating primary keys
+				if (notPK) {
+					let value = document.getElementById(`${pk}-${i}`).innerHTML;
+					console.log(`Got value ${value} from id ${pk}-${i}.`);
+					document.getElementById(`${pk}-${i}`).innerHTML = `<input type='text' id='${pk}-${i}-input'>`;
+					document.getElementById(`${pk}-${i}-input`).value = value;
+				}
 			}
 			document.getElementById(`${pk}-modify`).outerHTML = `<span onclick="confirmModify('${pk}')" id="${pk}-confirm"><img src="/tick.png" alt="Confirm button" width="16" height="16"></span>`
 			console.log(`The number of columns is ${numberOfColumns}`);
@@ -96,7 +108,15 @@
 			let numberOfColumns = document.getElementsByTagName("th").length - 3; //-2 limiter - actions col
 			let data = [];
 			for (let i = 1; i <= numberOfColumns; i++) {
-				let value = document.getElementById(`${pk}-${i}-input`).value;
+				let notPK = true;
+				for (let pk_col of primaryKeyNumber.split(',')) {
+					if (i == parseInt(pk_col)) {
+						notPK = false;
+					}
+				}
+
+				// Get the value in a different way if we have a primary key
+				let value = notPK? document.getElementById(`${pk}-${i}-input`).value : document.getElementById(`${pk}-${i}`).innerHTML;
 				console.log(`Got value ${value} from id ${pk}-${i}-input.`);
 				data.push(value);
 			}
