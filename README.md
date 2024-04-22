@@ -35,6 +35,7 @@ This project focuses on showing and handling database for Formula 1. The databas
     4. Database name
     5. port number
 
+![alt text](image.png)
 
 - Go to the link http://localhost:8080
 
