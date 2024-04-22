@@ -406,7 +406,7 @@ try:
                         self.wfile.write(bytes(append_line, "utf-8"))
         
         def do_DELETE(self):
-            print("Something should be deleted :)")
+            print("DEBUG: Something should be deleted :)")
             self.send_response(200)
             self.send_header("Content-type", "text/json")
             self.end_headers()
@@ -414,7 +414,7 @@ try:
             post_data_bytes = self.rfile.read(content_length)
             post_data_str = post_data_bytes.decode("UTF-8")
             res = json.loads(post_data_str)
-            print(f"I got this from the delete record: {res}")
+            print(f"DEBUG: I got this from the delete record: {res}")
             if self.path == "/f1awards":
                 table_name = "F1Awards"
                 primary_key = "AwardID"
@@ -441,10 +441,10 @@ try:
             try:
                 if "primary_key_2" in locals():
                     delete_record_2pks(table_name, res['PK'].split(';')[0], res['PK'].split(';')[1], primary_key, primary_key_2)
-                    print(f"Removed entry from {table_name} with 2 PKs!")
+                    print(f"DEBUG: Removed entry from {table_name} table with 2 PKs!")
                 else:
                     delete_record(table_name, res['PK'], primary_key)
-                    print(f"Removed entry from {table_name} with 1 PK!")
+                    print(f"DEBUG: Removed entry from {table_name} table with 1 PK!")
                 self.wfile.write(bytes(json.dumps({'res': "ok"}), "utf-8"))
             except Exception as e:
                 msg = f"Catched exception from database: {e}."
@@ -452,7 +452,7 @@ try:
                 self.wfile.write(bytes(json.dumps({'res': "fail", 'msg': msg}), "utf-8"))
 
         def do_PUT(self):
-            print("Something should be updated :D")
+            print("DEBUG: Something should be updated :D")
             self.send_response(200)
             self.send_header("Content-type", "text/json")
             self.end_headers()
@@ -460,7 +460,7 @@ try:
             post_data_bytes = self.rfile.read(content_length)
             post_data_str = post_data_bytes.decode("UTF-8")
             res = json.loads(post_data_str)
-            print(f"I got this from the update record: {res}")
+            print(f"DEBUG: I got this from the update record: {res}")
             if self.path == "/f1awards":
                 table_name = "F1Awards"
                 primary_key = "AwardID"
@@ -487,10 +487,10 @@ try:
             try:
                 if "primary_key_2" in locals():
                     update_record_2pks(table_name, res['PK'].split(';')[0], res['PK'].split(';')[1], primary_key, primary_key_2, res['data'])
-                    print(f"Updated entry from {table_name} with 2 PKs!")
+                    print(f"DEBUG: Updated entry from {table_name} table with 2 PKs!")
                 else:
                     update_record(table_name, res['PK'], primary_key, res['data'])
-                    print(f"Updated entry from {table_name} with 1 PK!")
+                    print(f"DEBUG: Updated entry from {table_name} table with 1 PK!")
                 self.wfile.write(bytes(json.dumps({'res': "ok"}), "utf-8"))
             except Exception as e:
                 msg = f"Catched exception from database: {e}."
@@ -499,7 +499,7 @@ try:
                 self.wfile.write(bytes(json.dumps({'res': "fail", 'msg': msg}), "utf-8"))
 
         def do_POST(self):
-            print("Something should be created :))")
+            print("DEBUG: Something should be created :))")
             self.send_response(200)
             self.send_header("Content-type", "text/json")
             self.end_headers()
@@ -507,7 +507,7 @@ try:
             post_data_bytes = self.rfile.read(content_length)
             post_data_str = post_data_bytes.decode("UTF-8")
             res = json.loads(post_data_str)
-            print(f"I got this from the create record: {res}")
+            print(f"DEBUG: I got this from the create record: {res}")
             if self.path == "/f1awards":
                 table_name = "F1Awards"
                 primary_key = "AwardID"
@@ -533,7 +533,7 @@ try:
             
             try:
                 create_record(table_name, res['data'])
-                print(f"Created a new row on {table_name}K!")
+                print(f"DEBUG: Created a new row on {table_name} table!")
                 self.wfile.write(bytes(json.dumps({'res': "ok"}), "utf-8"))
             except Exception as e:
                 msg = f"Catched exception from database: {e}."
