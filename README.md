@@ -39,7 +39,6 @@ This project focuses on showing and handling database for Formula 1. The databas
 
 - Go to the link http://localhost:8080
 
-
 ## Contributors
 
 1. Raviraj Mahadeo Khopade
